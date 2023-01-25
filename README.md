@@ -5,6 +5,7 @@ Clean architecture com Go
 ## Como utilizar
 
 - Clonar repositório
+- Instalar dependências
 - (Opcional) Executar os testes
 - Inicializar serviços(docker)
     - RabbitMQ
@@ -16,6 +17,7 @@ Clean architecture com Go
 
 git clone https://github.com/virb30/goexpert-cleanarch.git .
 cd goexpert-cleanarch
+go mod tidy
 go test ./...
 docker-compose up -d
 
