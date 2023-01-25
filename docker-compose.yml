@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: orders
+      MYSQL_PASSWORD: root
+    ports:
+      - 3306:3306
+    volumes:
+      - .docker/mysql:/var/lib/mysql
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      - ordersystem-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - ordersystem-net
+
+  app:
+    image: virb30/go-ordersystem
+    build:
+      context: .
+    container_name: ordersystem
+    env_file: "env_file"
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - 50051:50051
+      - 8000:8001
+      - 8080:8080
+    networks:
+      - ordersystem-net
+    command: dockerize -wait tcp://rabbitmq:5672 -wait tcp://mysql:3306 -timeout 60s ./main
+
+networks:
+  ordersystem-net:
+    driver: bridge
